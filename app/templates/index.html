@@ -9,14 +9,33 @@
 		<h4>Enter a task</h4>
 		{{form.label}}
 		<input type="submit" value="Send" class="btn btn-default btn-md">
-		{% for error in form.errors.label %}
-		<span style="color: red;">{{ error }}</span>
-		{% endfor %}
+
+
 	</p>
+	{% for error in form.errors.label %}
+	<span style="color: red;">{{ error }}</span>
+	{% endfor %}
 </form>
+
 
 {% for task in tasks %}
   <li>{{ task.name }}</li>
 {% endfor %}
+<table>
+	<tr>
+		<th></th>
+		<th>id</th>
+		<th>text</th>
+	</tr>
+	{% for task in tasks %}
+	<tr>
+		<td>
+			<input class = "form-check-input" type = "checkbox" name = "check_box" value = "{{task.id}}">
+		</td>
+		<td>{{task.id}}</td>
+		<td>{{task.name}}</td>
+	</tr>
+	{% endfor %}
+</table>
 
 {% endblock %}
