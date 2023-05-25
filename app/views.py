@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import render_template, url_for, redirect, g, abort, request, flash, send_file
 from app import app
-from app.forms import TaskForm
+from app.forms import TaskForm, OneTaskForm
 import json
 
 # rethink imports
@@ -59,9 +59,13 @@ def index():
             priority_number = r.RethinkDB().table('todos').order_by(r.RethinkDB().desc('priority')).limit(1).pluck(
                 'priority').run(g.rdb_conn)
             priority = (int(priority_number[0]['priority']) + 1)
-        r.RethinkDB().table('todos').insert(
+        result = r.RethinkDB().table('todos').insert(
             {"name": form.label.data, "status_id": "5acb93df-e780-46fe-9973-e33acb36658f", "priority": priority}).run(
             g.rdb_conn)
+        if result['inserted'] == 1:
+            flash('Successfully Added!', category='success')
+        else:
+            flash('Failed to Add!', category='error')
         return redirect(url_for('index'))
     selection = list(r.RethinkDB().table('todos').eq_join('status_id', r.RethinkDB().table('todo_status')).without(
         {"right": "id"}).zip().run(g.rdb_conn))
@@ -73,10 +77,19 @@ def delete():
     if request.method == 'POST':
         checked_boxes = request.form.getlist('check_box')
         if len(checked_boxes) > 0:
+            count_delete = 0
+            item = 0
             for get_id in checked_boxes:
+                item = item + 1
                 print(get_id)
-                r.RethinkDB().table('todos').get(get_id).delete().run(g.rdb_conn)
-            flash('Successfully Deleted!')
+                result = r.RethinkDB().table('todos').get(get_id).delete().run(g.rdb_conn)
+                if result['deleted'] == 1:
+                    count_delete = count_delete + 1
+
+            if item == count_delete:
+                flash('Successfully Deleted!', category='success')
+            else:
+                flash('Failed to delete!', category='error')
     return redirect('/')
 
 
@@ -86,13 +99,16 @@ def get_data_json():
         file_name = "/home/alex/Import in json(" + str(datetime.now()) + ").json"
         data = {}
         data['Tasks'] = []
-        cursor= r.RethinkDB().table('todos').run(g.rdb_conn)
-        for document in cursor:
-            data['Tasks'].append({'id': document['id'], 'name': document['name'], 'priority': document['priority'],
-                                  'status_id': document['status_id']})
-        with open(file_name, 'w', newline='', encoding='utf-8') as f:
-            # f.write(str(data))
-            json.dump(data, f, ensure_ascii=False)
+        try:
+            cursor = r.RethinkDB().table('todos').run(g.rdb_conn)
+            for document in cursor:
+                data['Tasks'].append({'id': document['id'], 'name': document['name'], 'priority': document['priority'],
+                                      'status_id': document['status_id']})
+            with open(file_name, 'w', newline='', encoding='utf-8') as f:
+                # f.write(str(data))
+                json.dump(data, f, ensure_ascii=False)
+        except:
+            print('error')
         return send_file(file_name, as_attachment=True)
 
 
@@ -107,3 +123,15 @@ def get_data_stv():
                 f.write(line)
 
         return send_file(file_name, as_attachment=True)
+
+
+@app.route('/<id>')
+def update_task(id):
+    form = OneTaskForm()
+    task = list(r.RethinkDB().table('todos').eq_join('status_id', r.RethinkDB().table('todo_status')).without(
+        {"right": "id"}).zip().filter({'id': id}).run(g.rdb_conn))
+    if len(task) == 0:
+        abort(404)
+    else:
+        form.label.data = task[0]['name']
+    return render_template('task.html', form=form, tasks=task[0]['name'])

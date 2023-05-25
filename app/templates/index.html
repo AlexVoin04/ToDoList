@@ -35,7 +35,7 @@
 			<td>
 				<input class = "form-check-input" type = "checkbox" name = "check_box" value = "{{task.id}}">
 			</td>
-			<td>{{task.name}}</td>
+			<td><p class = "title"><a href="{{ url_for('update_task', id=task.id)}}"> {{task.name}}</a> </p></td>
 			<td>{{task.text_status}}</td>
 			<td>{{task.priority}}</td>
 		</tr>
@@ -43,10 +43,10 @@
 		</tbody>
 	</table>
 	<div align="center">
-		{% with messages = get_flashed_messages() %}
+		{% with messages = get_flashed_messages(with_categories=true) %}
 			{% if messages %}
-				{% for message in messages %}
-				<div class="alert alert-danger" role="alert">{{message}}</div>
+				{% for category, message in messages %}
+				<div class="alert alert-{{ category }}" role="alert">{{message}}</div>
 				{% endfor %}
 			{% endif %}
 		{% endwith%}
