@@ -16,27 +16,68 @@
 	{% endfor %}
 </form>
 
-<table id="data" class="table table-striped">
-	<thead>
+<form method="POST" action="/delete">
+	<div align="right">
+		<input class="btn btn-danger" type="submit" value="Delete All Selected Tasks" style="margin-bottom: 10px">
+	</div>
+	<table id="data" class="table table-striped">
+		<thead>
+			<tr>
+			<th></th>
+			<th>Task</th>
+			<th>Status</th>
+			<th>Priority</th>
+		</tr>
+		</thead>
+		<tbody>
+			{% for task in tasks %}
 		<tr>
-		<th></th>
-		<th>Task</th>
-		<th>Status</th>
-		<th>Priority</th>
-	</tr>
-	</thead>
-	<tbody>
-		{% for task in tasks %}
-	<tr>
-		<td>
-			<input class = "form-check-input" type = "checkbox" name = "check_box" value = "{{task.id}}">
-		</td>
-		<td>{{task.name}}</td>
-		<td>{{task.text_status}}</td>
-		<td>{{task.priority}}</td>
-	</tr>
-	{% endfor %}
-	</tbody>
-</table>
+			<td>
+				<input class = "form-check-input" type = "checkbox" name = "check_box" value = "{{task.id}}">
+			</td>
+			<td>{{task.name}}</td>
+			<td>{{task.text_status}}</td>
+			<td>{{task.priority}}</td>
+		</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+	<div align="center">
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				{% for message in messages %}
+				<div class="alert alert-danger" role="alert">{{message}}</div>
+				{% endfor %}
+			{% endif %}
+		{% endwith%}
+	</div>
+</form>
+
+<div class="container">
+	<div class="row">
+		<div class="col">
+			<div class="form-container">
+				<form method="POST" action="/json_import">
+					<input type="submit" class="btn btn-default btn-md" value="Import JSON">
+				</form>
+			</div>
+			<div class="form-container">
+				<form method="POST" action="/json_export">
+					<input type="submit" class="btn btn-primary btn-md" value="Export JSON">
+				</form>
+			</div>
+			<div class="form-container">
+				<form method="POST" action="/tsv_import">
+					<input type="submit" class="btn btn-default btn-md" value="Import TSV">
+				</form>
+			</div>
+			<div class="form-container">
+				<form method="POST" action="/tsv_export">
+					<input type="submit" class="btn btn-primary btn-md" value="Export TSV">
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
 
 {% endblock %}
