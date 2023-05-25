@@ -10,32 +10,33 @@
 		{{form.label}}
 		<input type="submit" value="Send" class="btn btn-default btn-md">
 
-
 	</p>
 	{% for error in form.errors.label %}
 	<span style="color: red;">{{ error }}</span>
 	{% endfor %}
 </form>
 
-
-{% for task in tasks %}
-  <li>{{ task.name }}</li>
-{% endfor %}
-<table>
-	<tr>
+<table id="data" class="table table-striped">
+	<thead>
+		<tr>
 		<th></th>
-		<th>id</th>
-		<th>text</th>
+		<th>Task</th>
+		<th>Status</th>
+		<th>Priority</th>
 	</tr>
-	{% for task in tasks %}
+	</thead>
+	<tbody>
+		{% for task in tasks %}
 	<tr>
 		<td>
 			<input class = "form-check-input" type = "checkbox" name = "check_box" value = "{{task.id}}">
 		</td>
-		<td>{{task.id}}</td>
 		<td>{{task.name}}</td>
+		<td>{{task.text_status}}</td>
+		<td>{{task.priority}}</td>
 	</tr>
 	{% endfor %}
+	</tbody>
 </table>
 
 {% endblock %}
