@@ -125,13 +125,46 @@ def get_data_stv():
         return send_file(file_name, as_attachment=True)
 
 
-@app.route('/<id>')
+@app.route('/<id>', methods=['GET', 'POST'])
 def update_task(id):
     form = OneTaskForm()
-    task = list(r.RethinkDB().table('todos').eq_join('status_id', r.RethinkDB().table('todo_status')).without(
-        {"right": "id"}).zip().filter({'id': id}).run(g.rdb_conn))
-    if len(task) == 0:
-        abort(404)
+    if request.method == 'POST':
+        text = form.label.data
+        print(text)
+        result = r.RethinkDB().table('todos').get(id).update({"name": text}).run(g.rdb_conn)
+        if result['replaced'] == 1:
+            flash('Task Changed Successfully!', category='success')
+        else:
+            flash('Failed to Change Task !', category='error')
+        return redirect(url_for('update_task', id=id))
+        """
+        if form.validate_on_submit():
+            
+            #text = form.label.data
+            #print(text)
+            result = r.RethinkDB().table('todos').get(id).update({"name": text}).run(g.rdb_conn)
+            if result['replaced'] == 1:
+                flash('Task Changed Successfully!', category='success')
+            else:
+                flash('Failed to Change Task !', category='error')
+            return redirect(url_for('update_task', id=id))"""
     else:
-        form.label.data = task[0]['name']
-    return render_template('task.html', form=form, tasks=task, status=task[0]['text_status'])
+        task = list(r.RethinkDB().table('todos').eq_join('status_id', r.RethinkDB().table('todo_status')).without(
+            {"right": "id"}).zip().filter({'id': id}).run(g.rdb_conn))
+        if len(task) == 0:
+            abort(404)
+        else:
+            form.label.data = task[0]['name']
+        return render_template('task.html', form=form, task=task, status=task[0]['text_status'], id_task=task[0]['id'])
+
+
+@app.route('/<id>/update_status_task', methods=['GET', 'POST'])
+def update_status_task(id):
+    if request.method == 'POST':
+        value = request.form['status']
+        result = r.RethinkDB().table('todos').get(id).update({"status_id": value}).run(g.rdb_conn)
+        if result['replaced'] == 1:
+            flash('Task Status Changed Successfully!', category='success')
+        else:
+            flash('Failed to Change Status!', category='error')
+    return redirect('/{}'.format(id))

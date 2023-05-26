@@ -3,26 +3,41 @@
 
 <h1>Update task</h1>
 
-<form action="/{{id}}" role="form" method="POST" name="update_task">
+<form action="/{{id_task}}" role="form" method="POST" name="update_task">
 
     <p>
 		<h4>Enter the task to change</h4>
 		{{form.label}}
-		<input type="submit" value="Send" class="btn btn-default btn-md">
+		<input type="submit" value="Save modified task" class="btn btn-default btn-md">
 	</p>
     {% for error in form.errors.label %}
 	<span style="color: red;">{{ error }}</span>
 	{% endfor %}
 </form>
 
-<form>
-    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-        <label class="btn btn-secondary {% if status == 'done' %}active{% endif %}">
-            <input type="radio" name="status" id="status_done" autocomplete="off"{% if status =='done' %}checked{% endif %}/>DONE
-        </label>
-        <label class="btn btn-secondary {% if status == 'active' %}active{% endif %}">
-            <input type="radio" name="status" id="status_active" autocomplete="off" {% if status=='active' %}checked{% endif %}>ACTIVE
-        </label>
-    </div>
+<form action="/{{id_task}}/update_status_task" method="POST">
+    <p>
+        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            <label class="btn btn-secondary {% if status == 'done' %}active{% endif %}">
+                <input type="radio" name="status" value="5acb93df-e780-46fe-9973-e33acb36658f" id="status_done" autocomplete="off"{% if status =='done' %}checked{% endif %}/>DONE
+            </label>
+            <label class="btn btn-secondary {% if status == 'active' %}active{% endif %}">
+                <input type="radio" name="status" value="9f49d122-54b9-4cf4-9ea3-ce5e8c43a656" id="status_active" autocomplete="off" {% if status=='active' %}checked{% endif %}>ACTIVE
+            </label>
+        </div>
+
+        <input type="submit" value="Save status" class="btn btn-default btn-md">
+    </p>
+
+    <div align="center">
+		{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				{% for category, message in messages %}
+				<div class="alert alert-{{ category }}" role="alert">{{message}}</div>
+				{% endfor %}
+			{% endif %}
+		{% endwith%}
+	</div>
+
 </form>
 {% endblock %}
