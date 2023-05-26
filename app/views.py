@@ -134,4 +134,4 @@ def update_task(id):
         abort(404)
     else:
         form.label.data = task[0]['name']
-    return render_template('task.html', form=form, tasks=task[0]['name'])
+    return render_template('task.html', form=form, tasks=task, status=task[0]['text_status'])

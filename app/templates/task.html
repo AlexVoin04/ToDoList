@@ -1,5 +1,28 @@
 {% extends "base.html" %}
 {% block content %}
-    {{form.label}}
-    {{task}}
+
+<h1>Update task</h1>
+
+<form action="/{{id}}/update" role="form" method="POST" name="update_task">
+
+    <p>
+		<h4>Enter the task to change</h4>
+		{{form.label}}
+		<input type="submit" value="Send" class="btn btn-default btn-md">
+	</p>
+    {% for error in form.errors.label %}
+	<span style="color: red;">{{ error }}</span>
+	{% endfor %}
+</form>
+
+<form>
+    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+        <label class="btn btn-secondary {% if status == 'done' %}active{% endif %}">
+            <input type="radio" name="status" id="status_done" autocomplete="off"{% if status =='done' %}checked{% endif %}/>DONE
+        </label>
+        <label class="btn btn-secondary {% if status == 'active' %}active{% endif %}">
+            <input type="radio" name="status" id="status_active" autocomplete="off" {% if status=='active' %}checked{% endif %}>ACTIVE
+        </label>
+    </div>
+</form>
 {% endblock %}
