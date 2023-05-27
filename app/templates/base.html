@@ -11,13 +11,35 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
+    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <!--
     <script>
       $(function() {
         $("#header-placeholder").load("{{ url_for('static', filename='html/header.html') }}");
         $("#footer-placeholder").load("{{ url_for('static', filename='html/footer.html') }}");
       });
 
-    </script>
+      $(document).ready(function() {
+        $("#json-form").submit(function(event) {
+          event.preventDefault();
+          var formData = new FormData($(this)[0]);
+          $.ajax({
+            url: "/json_import",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+              alert("Imported JSON successfully");
+            },
+            error: function(xhr, status, error) {
+              alert("Error importing JSON: " + error);
+            }
+          });
+        });
+      });
+
+    </script>-->
   </head>
   <body>
     <!--<div id="header-placeholder"></div>-->

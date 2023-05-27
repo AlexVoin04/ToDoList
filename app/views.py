@@ -105,34 +105,29 @@ def delete():
 @app.route('/json_export', methods=['POST'])
 def get_data_json():
     if request.method == 'POST':
-        file_name = "/home/alex/Import in json(" + str(datetime.now()) + ").json"
-        data = {}
-        data['Tasks'] = []
-        try:
-            cursor = r.RethinkDB().table('todos').run(g.rdb_conn)
-            for document in cursor:
-                data['Tasks'].append({'id': document['id'], 'name': document['name'], 'priority': document['priority'],
-                                      'status_id': document['status_id']})
-            with open(file_name, 'w', newline='', encoding='utf-8') as f:
-                # f.write(str(data))
-                json.dump(data, f, ensure_ascii=False)
-        except:
-            print('error')
+        tasks = []
+        file_name = "/home/alex/server/Import in jsv(" + str(datetime.now()) + ").json"
+        cursor = r.RethinkDB().table('todos').run(g.rdb_conn)
+        for task in cursor:
+            tasks.append(task)
+        json_string = json.dumps(tasks, ensure_ascii=False, indent=2)
+        with open(file_name, 'w', newline='', encoding='utf-8') as f:
+            f.write(json_string)
         return send_file(file_name, as_attachment=True)
 
 
 @app.route('/json_import', methods=['POST'])
-def import_data_json():
-    data = request.get_json()
-    result = r.RethinkDB().table('todos').insert(
-        {data}).run(g.rdb_conn)
-    return jsonify({'success': True})
+def import_json():
+    json_file = request.files["json_file"]
+    data = json.loads(json_file.read())
+    result = r.RethinkDB().table('todos').insert(data).run(g.rdb_conn)
+    return redirect(request.referrer)
 
 
 @app.route('/tsv_export', methods=['POST'])
-def get_data_stv():
+def get_data_tsv():
     if request.method == 'POST':
-        file_name = "/home/alex/Import in tsv(" + str(datetime.now()) + ").tsv"
+        file_name = "/home/alex/server/Import in tsv(" + str(datetime.now()) + ").tsv"
         with open(file_name, 'w') as f:
             cursor = r.RethinkDB().table('todos').run(g.rdb_conn)
             for row in cursor:
