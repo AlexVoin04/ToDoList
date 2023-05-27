@@ -62,7 +62,8 @@
 		<div class="col">
 			<div class="form-container">
 				<form method="POST" action="/json_import">
-					<input type="submit" class="btn btn-default btn-md" value="Import JSON">
+					<input type="file" id="file-input">
+					<input type="submit" class="btn btn-default btn-md" onclick="importData()" value="Import JSON">
 				</form>
 			</div>
 			<div class="form-container">

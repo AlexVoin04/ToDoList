@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import render_template, url_for, redirect, g, abort, request, flash, send_file
+from flask import render_template, url_for, redirect, g, abort, request, flash, send_file, jsonify
 from app import app
 from app.forms import TaskForm, OneTaskForm
 import json
@@ -121,6 +121,14 @@ def get_data_json():
         return send_file(file_name, as_attachment=True)
 
 
+@app.route('/json_import', methods=['POST'])
+def import_data_json():
+    data = request.get_json()
+    result = r.RethinkDB().table('todos').insert(
+        {data}).run(g.rdb_conn)
+    return jsonify({'success': True})
+
+
 @app.route('/tsv_export', methods=['POST'])
 def get_data_stv():
     if request.method == 'POST':
@@ -167,3 +175,32 @@ def update_status_task(id):
         else:
             flash('Failed to Change Status!', category='error')
     return redirect('/{}'.format(id))
+
+
+@app.route('/move_positions_tasks', methods=['GET', 'POST'])
+def move_positions_tasks():
+    if request.method == 'POST':
+        checked_boxes = request.form.getlist('check_box')
+        print(checked_boxes)
+        if len(checked_boxes) > 0:
+            if len(checked_boxes) == 2:
+                cursor1 = r.RethinkDB().table('todos').get(checked_boxes[0]).pluck('priority').run(g.rdb_conn)[
+                    'priority']
+                cursor2 = r.RethinkDB().table('todos').get(checked_boxes[1]).pluck('priority').run(g.rdb_conn)[
+                    'priority']
+                print(cursor1)
+                print(cursor2)
+                result1 = r.RethinkDB().table('todos').get(checked_boxes[0]).update({'priority': cursor2}).run(
+                    g.rdb_conn)
+                result2 = r.RethinkDB().table('todos').get(checked_boxes[1]).update({'priority': cursor1}).run(
+                    g.rdb_conn)
+                if result1['replaced'] + result2['replaced'] == 2:
+                    flash('Task Priority Changed Successfully!', category='success')
+                else:
+                    flash('Failed to Change priority!', category='error')
+            else:
+                flash('Chose two tasks!', category='error')
+        return redirect('/move_positions_tasks')
+    selection = list(r.RethinkDB().table('todos').eq_join('status_id', r.RethinkDB().table('todo_status')).without(
+        {"right": "id"}).zip().run(g.rdb_conn))
+    return render_template('move_positions_tasks.html', tasks=selection)
