@@ -6,7 +6,7 @@
 <form action="/{{id_task}}" role="form" method="POST" name="update_task">
 
     <p>
-		<h4>Enter the task to change</h4>
+		<label>Enter the task to change:</label>
 		{{form.label}}
 		<input type="submit" value="Save modified task" class="btn btn-default btn-md">
 	</p>
@@ -16,8 +16,9 @@
 </form>
 
 <form action="/{{id_task}}/update_status_task" method="POST">
-    <p>
-        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+    <div class="status-toggle">
+        <label style="margin-right: 10px">Change status:</label>
+        <div class="btn-group btn-group-toggle" data-toggle="buttons" style="margin-right: 3px">
             <label class="btn btn-secondary {% if status == 'done' %}active{% endif %}">
                 <input type="radio" name="status" value="5acb93df-e780-46fe-9973-e33acb36658f" id="status_done" autocomplete="off"{% if status =='done' %}checked{% endif %}/>DONE
             </label>
@@ -27,9 +28,9 @@
         </div>
 
         <input type="submit" value="Save status" class="btn btn-default btn-md">
-    </p>
+    </div>
 
-    <div align="center">
+    <div align="center" style="margin-top: 10px">
 		{% with messages = get_flashed_messages(with_categories=true) %}
 			{% if messages %}
 				{% for category, message in messages %}
