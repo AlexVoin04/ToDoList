@@ -13,18 +13,25 @@
 	{% endfor %}
 </form>
 
-<form>
+<div style="display: flex;">
+	<form>
 	<label for="filter-type">Filter By:</label>
 	<select name="filter-type" id="filter-type" onchange="this.form.submit()">
 		<option value="default" {% if filter =='default' %}selected{% endif %}>Default</option>
 		<option value="status-done" {% if filter =='status-done' %}selected{% endif %}>Done</option>
 		<option value="status-active" {% if filter =='status-active' %}selected{% endif %}>Active</option>
 	</select>
-</form>
 
+	</form>
+	<div style="margin-left: 10px;">
+		<button id='check-all'>Check All Tasks</button>
+	</div>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/script_for_checkbox.js') }}"></script>
+</div>
 
 
 <form method="POST" action="/delete">
+
 	<div align="right">
 		<input class="btn btn-danger" type="submit" value="Delete All Selected Tasks" style="margin-bottom: 10px">
 	</div>
