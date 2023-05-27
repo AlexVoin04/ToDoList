@@ -1,21 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Todo List</h1>
-
 <form action="" role="form" method="POST" name="add_task">
 	{{form.hidden_tag()}}
 	<p>
-		<h4>Enter the task</h4>
+		<label>Enter the task:</label>
 		{{form.label}}
-		<input type="submit" value="Send" class="btn btn-default btn-md">
-
+		<input type="submit" value="Add task" class="btn btn-default btn-md">
 	</p>
 	{% for error in form.errors.label %}
 	<span style="color: red;">{{ error }}</span>
 	{% endfor %}
 </form>
-
+<form>
+	<label for="filter-type">Filter By:</label>
+	<select name="filter-type" id="filter-type" onchange="this.form.submit()">
+		<option value="default" {% if filter =='default' %}selected{% endif %}>Default</option>
+		<option value="status-done" {% if filter =='status-done' %}selected{% endif %}>Done</option>
+		<option value="status-active" {% if filter =='status-active' %}selected{% endif %}>Active</option>
+	</select>
+</form>
 <form method="POST" action="/delete">
 	<div align="right">
 		<input class="btn btn-danger" type="submit" value="Delete All Selected Tasks" style="margin-bottom: 10px">

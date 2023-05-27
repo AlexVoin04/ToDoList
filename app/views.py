@@ -51,6 +51,7 @@ def teardown_request(exception):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = TaskForm()
+    filter_type = request.args.get('filter-type')
     if form.validate_on_submit():
         count = r.RethinkDB().table('todos').count().run(g.rdb_conn)
         if count == 0:
@@ -60,16 +61,24 @@ def index():
                 'priority').run(g.rdb_conn)
             priority = (int(priority_number[0]['priority']) + 1)
         result = r.RethinkDB().table('todos').insert(
-            {"name": form.label.data, "status_id": "5acb93df-e780-46fe-9973-e33acb36658f", "priority": priority}).run(
+            {"name": form.label.data, "status_id": "9f49d122-54b9-4cf4-9ea3-ce5e8c43a656", "priority": priority}).run(
             g.rdb_conn)
         if result['inserted'] == 1:
             flash('Successfully Added!', category='success')
         else:
             flash('Failed to Add!', category='error')
         return redirect(url_for('index'))
-    selection = list(r.RethinkDB().table('todos').eq_join('status_id', r.RethinkDB().table('todo_status')).without(
-        {"right": "id"}).zip().run(g.rdb_conn))
-    return render_template('index.html', form=form, tasks=selection)
+
+    if filter_type == 'status-done':
+        selection = list(r.RethinkDB().table('todos').eq_join('status_id', r.RethinkDB().table('todo_status')).without(
+            {"right": "id"}).zip().filter(lambda row: row['text_status'].match('done')).run(g.rdb_conn))
+    elif filter_type == 'status-active':
+        selection = list(r.RethinkDB().table('todos').eq_join('status_id', r.RethinkDB().table('todo_status')).without(
+            {"right": "id"}).zip().filter(lambda row: row['text_status'].match('active')).run(g.rdb_conn))
+    else:
+        selection = list(r.RethinkDB().table('todos').eq_join('status_id', r.RethinkDB().table('todo_status')).without(
+            {"right": "id"}).zip().run(g.rdb_conn))
+    return render_template('index.html', form=form, tasks=selection, filter=filter_type)
 
 
 @app.route('/delete', methods=['GET', 'POST'])
@@ -137,17 +146,7 @@ def update_task(id):
         else:
             flash('Failed to Change Task !', category='error')
         return redirect(url_for('update_task', id=id))
-        """
-        if form.validate_on_submit():
-            
-            #text = form.label.data
-            #print(text)
-            result = r.RethinkDB().table('todos').get(id).update({"name": text}).run(g.rdb_conn)
-            if result['replaced'] == 1:
-                flash('Task Changed Successfully!', category='success')
-            else:
-                flash('Failed to Change Task !', category='error')
-            return redirect(url_for('update_task', id=id))"""
+
     else:
         task = list(r.RethinkDB().table('todos').eq_join('status_id', r.RethinkDB().table('todo_status')).without(
             {"right": "id"}).zip().filter({'id': id}).run(g.rdb_conn))

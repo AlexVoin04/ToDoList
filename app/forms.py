@@ -5,7 +5,10 @@ from wtforms.validators import InputRequired, Length, Regexp
 
 
 class TaskForm(FlaskForm):
-    label = StringField('label', validators=[InputRequired(), Length(min=4), Regexp('^[\w,а-яА-Я\s]+$', message='Only English and Russian letters, digits, and commas are allowed')])
+    label = StringField('label', validators=[InputRequired(), Length(min=4), Regexp('^[\w,а-яА-Я\s]+$',
+                                                                                    message='Only English and Russian letters, digits, and commas are allowed')])
+
 
 class OneTaskForm(FlaskForm):
-    label = StringField('label', validators=[InputRequired(), Length(min=4), Regexp('^[\w,а-яА-Я\s]+$', message='Only English and Russian letters, digits, and commas are allowed')])
+    label = StringField('label', validators=[InputRequired(), Length(min=4), Regexp('^[\w,а-яА-Я\s]+$',
+                                                                                    message='Only English and Russian letters, digits, and commas are allowed')])
