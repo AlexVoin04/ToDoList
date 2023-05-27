@@ -48,8 +48,6 @@ footer{
   flex-direction: row;
   align-items: center;
 }
-
-
 #json-form input[type="file"] {
   display: inline-block;
   padding: 6px 12px;
@@ -80,7 +78,6 @@ footer{
   padding: 6px 12px;
   cursor: pointer;
 }
-
 #tsv-form input[type="file"] {
   display: inline-block;
   padding: 6px 12px;

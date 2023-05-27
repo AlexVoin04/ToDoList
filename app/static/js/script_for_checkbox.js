@@ -4,6 +4,6 @@
 // add click event listener to the check-all button
 document.getElementById('check-all').addEventListener('click', function() {
   checkboxes.forEach(function(checkbox) {
-    checkbox.checked = true;
+    checkbox.checked = !checkbox.checked;
   });
 });

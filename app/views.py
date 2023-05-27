@@ -120,7 +120,18 @@ def get_data_json():
 def import_json():
     json_file = request.files["json_file"]
     data = json.loads(json_file.read())
-    result = r.RethinkDB().table('todos').insert(data).run(g.rdb_conn)
+    count = 0
+    for task in data:
+        check = r.RethinkDB().table('todos').filter({'id': task['id']}).is_empty().run(g.rdb_conn)
+        if not check:
+            print("Task with id "+task['id']+" already exists")
+        else:
+            result = r.RethinkDB().table('todos').insert(task).run(g.rdb_conn)
+            if result['inserted'] == 1:
+                count = count + 1
+            else:
+                print("Failed to Add:" + task['id'] + "!")
+    print("Imported " + str(count) + " task(s)")
     return redirect(request.referrer)
 
 
