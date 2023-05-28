@@ -3,6 +3,7 @@ from flask import render_template, url_for, redirect, g, abort, request, flash, 
 from app import app
 from app.forms import TaskForm, OneTaskForm
 import json
+import pandas as pd
 
 # rethink imports
 import rethinkdb as r
@@ -106,7 +107,7 @@ def delete():
 def get_data_json():
     if request.method == 'POST':
         tasks = []
-        file_name = "/home/alex/server/Import in jsv(" + str(datetime.now()) + ").json"
+        file_name = "/home/alex/server/Import in json(" + str(datetime.now()) + ").json"
         cursor = r.RethinkDB().table('todos').run(g.rdb_conn)
         for task in cursor:
             tasks.append(task)
@@ -116,22 +117,30 @@ def get_data_json():
         return send_file(file_name, as_attachment=True)
 
 
-@app.route('/json_import', methods=['POST'])
-def import_json():
-    json_file = request.files["json_file"]
-    data = json.loads(json_file.read())
-    count = 0
-    for task in data:
-        check = r.RethinkDB().table('todos').filter({'id': task['id']}).is_empty().run(g.rdb_conn)
-        if not check:
-            print("Task with id "+task['id']+" already exists")
-        else:
-            result = r.RethinkDB().table('todos').insert(task).run(g.rdb_conn)
-            if result['inserted'] == 1:
-                count = count + 1
+@app.route('/import', methods=['POST'])
+def import_tsv():
+    file = request.files["file"]
+    extension = file.filename.rsplit('.', 1)[1].lower()
+    if extension == 'tsv':
+        df = pd.read_csv(file, sep='\t', names=['id', 'name', 'priority', 'status_id'])
+        data = df.to_dict('records')
+    elif extension == 'json':
+        data = json.loads(file.read())
+    else:
+        data = []
+    if bool(data):
+        count = 0
+        for task in data:
+            check = r.RethinkDB().table('todos').filter({'id': task['id']}).is_empty().run(g.rdb_conn)
+            if not check:
+                print("Task with id " + task['id'] + " already exists")
             else:
-                print("Failed to Add:" + task['id'] + "!")
-    print("Imported " + str(count) + " task(s)")
+                result = r.RethinkDB().table('todos').insert(task).run(g.rdb_conn)
+                if result['inserted'] == 1:
+                    count = count + 1
+                else:
+                    print("Failed to Add:" + task['id'] + "!")
+        print("Imported " + str(count) + " task(s)")
     return redirect(request.referrer)
 
 

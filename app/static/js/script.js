@@ -4,21 +4,23 @@ $(function() {
 });
 
 $(document).ready(function() {
-   $("#json-form").submit(function(event) {
+   $("#import-form").submit(function(event) {
       event.preventDefault();
       var formData = new FormData($(this)[0]);
       $.ajax({
-         url: "/json_import",
+         url: "/import",
          type: "POST",
          data: formData,
          contentType: false,
          processData: false,
          success: function(response) {
-           alert("Imported JSON successfully");
+           alert("Imported successfully");
          },
          error: function(xhr, status, error) {
-           alert("Error importing JSON: " + error);
+           alert("Error importing: " + error);
          }
       });
    });
 });
+
+
